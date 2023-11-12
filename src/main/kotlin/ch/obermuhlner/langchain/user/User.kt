@@ -9,6 +9,15 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
+    @Column(name = "username")
+    var username: String = "",
+
+    @Column(name = "password")
+    var password: String = "",
+
+    @Column(name = "authorities")
+    var authorities: String = "",
+
     @Column(name = "name")
     var name: String = "",
 
