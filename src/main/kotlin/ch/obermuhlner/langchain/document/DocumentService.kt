@@ -2,6 +2,7 @@ package ch.obermuhlner.langchain.document
 
 import ch.obermuhlner.langchain.assistant.Assistant
 import dev.langchain4j.data.document.DocumentType
+import dev.langchain4j.data.document.UrlDocumentLoader
 import dev.langchain4j.data.document.splitter.DocumentSplitters
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel
 import dev.langchain4j.model.embedding.EmbeddingModel
@@ -28,6 +29,13 @@ class DocumentService(
         val parser = toDocumentParser(documentType)
         val langchainDocument = parser.parse(inputStream)
         langchainDocument.metadata().add("name", name)
+
+        createDocument(assistant, langchainDocument)
+    }
+
+    fun createDocumentUrl(assistant: Assistant?, url: String) {
+        val langchainDocument: dev.langchain4j.data.document.Document = UrlDocumentLoader.load(url)
+        langchainDocument.metadata().add("name", url)
 
         createDocument(assistant, langchainDocument)
     }
@@ -82,5 +90,4 @@ class DocumentService(
     fun findAllDocuments(): List<Document> {
         return documentRepository.findAll()
     }
-
 }
