@@ -1,4 +1,4 @@
-package ch.obermuhlner.langchain.hello
+package ch.obermuhlner.langchain.ai
 
 import dev.langchain4j.model.openai.OpenAiChatModel
 import java.time.Duration

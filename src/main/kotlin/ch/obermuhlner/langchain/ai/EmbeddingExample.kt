@@ -1,7 +1,6 @@
-package ch.obermuhlner.langchain.hello
+package ch.obermuhlner.langchain.ai
 
 import dev.langchain4j.data.segment.TextSegment
-import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel
 import dev.langchain4j.store.embedding.EmbeddingMatch
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore
