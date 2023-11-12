@@ -22,8 +22,10 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     //implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+    implementation 'org.flywaydb:flyway-core'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'dev.langchain4j:langchain4j:0.23.0'
@@ -32,7 +34,8 @@ dependencies {
     implementation 'dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:0.23.0'
     //implementation 'ch.qos.logback:logback-classic:1.2.6'
 
-    implementation 'com.h2database:h2' // H2 database for local development (optional)
+    //implementation 'com.h2database:h2' // H2 database for local development (optional)
+    implementation("org.apache.derby:derby")
 
     implementation 'io.github.cosinekitty:astronomy:2.1.17'
 }

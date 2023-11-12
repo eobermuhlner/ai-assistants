@@ -1,11 +1,24 @@
-
-logging:
-  level:
-    org.springframework.web: DEBUG
-    org.springframework.web.servlet.mvc.method.annotation: TRACE
-
 spring:
   servlet:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB
+  datasource:
+    url: jdbc:derby:ai-assistants-db;create=true
+    driver-class-name: org.apache.derby.iapi.jdbc.AutoloadedDriver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    baseline-on-migrate: true
+    out-of-order: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation: TRACE
+    org.hibernate.type.descriptor.sql: TRACE
