@@ -15,7 +15,12 @@ class SecurityConfig {
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .authorizeHttpRequests { it.requestMatchers("/api/users/**").hasRole("ADMIN") }
-            .authorizeHttpRequests { it.anyRequest().authenticated() }
+            .authorizeHttpRequests { it.requestMatchers("/api/chats/**").hasRole("USER") }
+            .authorizeHttpRequests { it.requestMatchers("/api/assistants/**").hasRole("USER") }
+            .authorizeHttpRequests { it.requestMatchers("/api/assistants/**").hasRole("USER") }
+            .authorizeHttpRequests { it.requestMatchers("/api/documents/**").hasRole("USER") }
+            .authorizeHttpRequests { it.requestMatchers("/api/document-segments/**").hasRole("USER") }
+            .authorizeHttpRequests { it.anyRequest().denyAll() }
             .csrf { it.ignoringRequestMatchers("/api/**") }
             .httpBasic(Customizer.withDefaults())
             .build()
