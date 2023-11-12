@@ -29,6 +29,19 @@ class DocumentRestController(
         }
     }
 
+    @PostMapping("/assistant/{assistantId}/url")
+    fun uploadUrl(@PathVariable assistantId: Long, @RequestParam("url") url: String): ResponseEntity<String> {
+        try {
+            val assistant = assistantService.getAssistantById(assistantId)
+            documentService.createDocumentUrl(assistant, url)
+
+            return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
+        } catch (e: IOException) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the URL.")
+        }
+    }
+
+
     @GetMapping
     fun findAllDocuments(): ResponseEntity<List<Document>> {
         val documents = documentService.findAllDocuments()
