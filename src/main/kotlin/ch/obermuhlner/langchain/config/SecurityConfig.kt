@@ -20,6 +20,7 @@ class SecurityConfig {
             .authorizeHttpRequests { it.requestMatchers("/api/assistants/**").hasRole("USER") }
             .authorizeHttpRequests { it.requestMatchers("/api/documents/**").hasRole("USER") }
             .authorizeHttpRequests { it.requestMatchers("/api/document-segments/**").hasRole("USER") }
+            .authorizeHttpRequests { it.requestMatchers("/actuator/**").permitAll() }
             .authorizeHttpRequests { it.anyRequest().denyAll() }
             .csrf { it.ignoringRequestMatchers("/api/**") }
             .httpBasic(Customizer.withDefaults())

@@ -22,3 +22,9 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.web.servlet.mvc.method.annotation: TRACE
     org.hibernate.type.descriptor.sql: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,loggers
