@@ -1,11 +1,13 @@
 package ch.obermuhlner.langchain.chat
 
 import ch.obermuhlner.langchain.document.toDocumentParser
+import ch.obermuhlner.langchain.security.PrincipalService
+import ch.obermuhlner.langchain.user.User
+import ch.obermuhlner.langchain.user.UserService
 import dev.langchain4j.data.document.DocumentType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.async.WebAsyncTask
 import org.springframework.web.multipart.MultipartFile
@@ -14,42 +16,51 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.security.Principal
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 
+
 @RestController
 @RequestMapping("/api/chats")
-class ChatRestController @Autowired constructor(private val chatService: ChatService) {
+class ChatRestController @Autowired constructor(
+    private val principalService: PrincipalService,
+    private val chatService: ChatService,
+    private val userService: UserService
+) {
 
-    // Create a new chat with an Assistant ID
     @PostMapping
-    fun createChat(@RequestBody chat: Chat): ResponseEntity<Chat> {
+    fun createChat(@RequestBody chat: Chat, user: User): ResponseEntity<Chat> {
+        chat.user = user
         val createdChat = chatService.createChat(chat)
         return ResponseEntity(createdChat, HttpStatus.CREATED)
     }
 
-    // Retrieve all chats
     @GetMapping
-    fun findAllChats(): ResponseEntity<List<Chat>> {
-        val chats = chatService.findAllChats()
+    fun findAllChats(user: User): ResponseEntity<List<Chat>> {
+        val chats = chatService.findChatsByUser(user)
         return ResponseEntity(chats, HttpStatus.OK)
     }
 
     @GetMapping("/{chatId}")
-    fun getChat(@PathVariable chatId: Long): ResponseEntity<Chat> {
-        val chat = chatService.getChat(chatId)
+    fun getChat(@PathVariable chatId: Long, principal: Principal): ResponseEntity<Chat> {
+        val chat = principalService.getChat(principal, chatId)
         return ResponseEntity(chat, HttpStatus.OK)
     }
 
     @GetMapping("/{chatId}/messages")
-    fun addMessage(@PathVariable chatId: Long): ResponseEntity<List<Message>> {
+    fun addMessage(@PathVariable chatId: Long, principal: Principal): ResponseEntity<List<Message>> {
+        principalService.getChat(principal, chatId)
+
         val messages = chatService.getMessages(chatId)
         return ResponseEntity(messages, HttpStatus.OK)
     }
 
     private val asyncTimeoutMillis = 120_000L
     @PostMapping("/{chatId}/messages")
-    fun addMessage(@PathVariable chatId: Long, @RequestBody message: Message): WebAsyncTask<CompletableFuture<ResponseEntity<Message>>> {
+    fun addMessage(@PathVariable chatId: Long, @RequestBody message: Message, principal: Principal): WebAsyncTask<CompletableFuture<ResponseEntity<Message>>> {
+        principalService.getChat(principal, chatId)
+
         val messageContent = message.content
         return WebAsyncTask(asyncTimeoutMillis) {
             chatService.addMessage(chatId, messageContent)
@@ -136,4 +147,8 @@ class ChatRestController @Autowired constructor(private val chatService: ChatSer
         chatService.clearChatCache()
     }
 
+    @GetMapping("/{chatId}/documents/summary/{documentId}")
+    fun summarizeDocument(@PathVariable chatId: Long, @PathVariable documentId: Long): String {
+        return chatService.summarizeDocument(chatId, documentId)
+    }
 }
