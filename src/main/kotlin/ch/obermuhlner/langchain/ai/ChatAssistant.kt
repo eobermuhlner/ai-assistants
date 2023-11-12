@@ -1,4 +1,4 @@
-package ch.obermuhlner.langchain.hello
+package ch.obermuhlner.langchain.ai
 
 import dev.langchain4j.agent.tool.Tool
 import dev.langchain4j.data.document.Document
@@ -248,7 +248,7 @@ class ChatAssistant(
     private val apiKey: String,
     private val forceUseDocuments: Boolean = false,
     tools: List<Any> = listOf(),
-    maxMessages: Int = 20) {
+    maxMessages: Int = 10) {
 
     val embeddingModel: EmbeddingModel = AllMiniLmL6V2EmbeddingModel()
     val embeddingStore: EmbeddingStore<TextSegment> = InMemoryEmbeddingStore<TextSegment>()
@@ -260,13 +260,13 @@ class ChatAssistant(
 
     val model = OpenAiChatModel.builder()
             .apiKey(apiKey)
-            .timeout(Duration.ofSeconds(60))
+            .timeout(Duration.ofSeconds(120))
             .logRequests(true)
             .logRequests(true)
             .build()
     val streamingModel = OpenAiStreamingChatModel.builder()
         .apiKey(apiKey)
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(120))
         .logRequests(true)
         .logRequests(true)
         .build()
@@ -282,6 +282,9 @@ class ChatAssistant(
         .chatMemory(chatMemory)
         .retriever(EmbeddingStoreRetriever.from(embeddingStore, embeddingModel))
         .tools(tools)
+        .build()
+    val aiSimple = AiServices.builder(Assistant::class.java)
+        .chatLanguageModel(model)
         .build()
 
     init {
