@@ -118,27 +118,27 @@ class ChatRestController @Autowired constructor(
 
     @PostMapping("/{chatId}/documents/upload")
     fun uploadFile(@PathVariable chatId: Long, @RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        try {
+        return try {
             val documentType = DocumentType.of(file.originalFilename)
             val parser = toDocumentParser(documentType)
             val document = parser.parse(ByteArrayInputStream(file.bytes))
             document.metadata().add("file", file.originalFilename)
             chatService.addDocument(chatId, document)
 
-            return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
+            ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
         } catch (e: IOException) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the file.")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the file.")
         }
     }
 
     @PostMapping("/{chatId}/documents/url")
     fun uploadUrl(@PathVariable chatId: Long, @RequestParam("url") url: String): ResponseEntity<String> {
-        try {
+        return try {
             chatService.addUrlDocument(chatId, url)
 
-            return ResponseEntity.status(HttpStatus.OK).body("URL uploaded successfully.")
+            ResponseEntity.status(HttpStatus.OK).body("URL uploaded successfully.")
         } catch (e: IOException) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the URL.")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the URL.")
         }
     }
 

@@ -18,26 +18,26 @@ class DocumentRestController(
 
     @PostMapping("/assistant/{assistantId}/upload")
     fun uploadFile(@PathVariable assistantId: Long, @RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        try {
+        return try {
             val assistant = assistantService.getAssistantById(assistantId)
             val name = file.originalFilename ?: "Untitled"
             documentService.createDocument(assistant, name, ByteArrayInputStream(file.bytes))
 
-            return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
+            ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
         } catch (e: IOException) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the file.")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the file.")
         }
     }
 
     @PostMapping("/assistant/{assistantId}/url")
     fun uploadUrl(@PathVariable assistantId: Long, @RequestParam("url") url: String): ResponseEntity<String> {
-        try {
+        return try {
             val assistant = assistantService.getAssistantById(assistantId)
             documentService.createDocumentUrl(assistant, url)
 
-            return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
+            ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.")
         } catch (e: IOException) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the URL.")
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the URL.")
         }
     }
 

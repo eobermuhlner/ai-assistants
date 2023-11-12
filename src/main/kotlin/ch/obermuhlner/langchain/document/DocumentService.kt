@@ -9,13 +9,10 @@ import dev.langchain4j.model.embedding.EmbeddingModel
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.InputStream
-import java.nio.ByteBuffer
-import java.util.Base64
 
 @Service
 class DocumentService(
-    @Autowired private val documentRepository: DocumentRepository,
-    @Autowired private val documentSegmentRepository: DocumentSegmentRepository
+    @Autowired private val documentRepository: DocumentRepository
 ) {
 
     val embeddingModel: EmbeddingModel = AllMiniLmL6V2EmbeddingModel()
