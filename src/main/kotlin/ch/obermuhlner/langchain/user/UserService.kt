@@ -1,29 +1,33 @@
 package ch.obermuhlner.langchain.user
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import java.util.Optional
 
 @Service
-class UserService @Autowired constructor(private val userRepository: UserRepository) {
+class UserService @Autowired constructor(private val userRepository: UserRepository): UserDetailsService {
 
-    // Create a new user
     fun createUser(user: User): User {
         return userRepository.save(user)
     }
 
-    // Retrieve all users
     fun findAllUsers(): List<User> {
         return userRepository.findAll()
     }
 
-    // Retrieve a user by ID
     fun findUserById(id: Long): User? {
         val userOptional: Optional<User> = userRepository.findById(id)
         return if (userOptional.isPresent) userOptional.get() else null
     }
 
-    // Update a user by ID
+    fun findUserByUsername(username: String): User? {
+        return userRepository.findByUsername(username)
+    }
+
     fun updateUserById(id: Long, updatedUser: User): User? {
         if (userRepository.existsById(id)) {
             updatedUser.id = id
@@ -32,12 +36,25 @@ class UserService @Autowired constructor(private val userRepository: UserReposit
         return null
     }
 
-    // Delete a user by ID
     fun deleteUserById(id: Long): Boolean {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id)
             return true
         }
         return false
+    }
+
+    override fun loadUserByUsername(username: String): UserDetails {
+        val user = userRepository.findByUsername(username) ?: throw UsernameNotFoundException("User not found: $username")
+        val authorities = user.authorities
+            .split(",")
+            .map { it.trim() }
+            .map { SimpleGrantedAuthority(it) }
+
+        return org.springframework.security.core.userdetails.User
+            .withUsername(user.username)
+            .password(user.password)
+            .authorities(authorities)
+            .build()
     }
 }
