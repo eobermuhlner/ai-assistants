@@ -4,6 +4,7 @@ import ch.obermuhlner.langchain.document.Document
 import jakarta.persistence.*
 
 @Entity
+@Table(name = "assistants")
 class Assistant(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
