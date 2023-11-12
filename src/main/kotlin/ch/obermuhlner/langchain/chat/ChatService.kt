@@ -2,10 +2,12 @@ package ch.obermuhlner.langchain.chat
 
 import ch.obermuhlner.langchain.document.base64ToFloatArray
 import ch.obermuhlner.langchain.document.jsonToMap
-import ch.obermuhlner.langchain.hello.Astronomy
-import ch.obermuhlner.langchain.hello.Calendar
-import ch.obermuhlner.langchain.hello.ChatAssistant
-import ch.obermuhlner.langchain.hello.Weather
+import ch.obermuhlner.langchain.ai.Astronomy
+import ch.obermuhlner.langchain.ai.Calendar
+import ch.obermuhlner.langchain.ai.ChatAssistant
+import ch.obermuhlner.langchain.ai.Weather
+import ch.obermuhlner.langchain.document.DocumentService
+import ch.obermuhlner.langchain.user.User
 import dev.langchain4j.data.document.Document
 import dev.langchain4j.data.document.Metadata
 import dev.langchain4j.data.embedding.Embedding
@@ -28,6 +30,7 @@ import java.util.function.Consumer
 class ChatService(
     @Autowired val chatRepository: ChatRepository,
     @Autowired val messageRepository: MessageRepository,
+    @Autowired val documentService: DocumentService,
     @Autowired private val transactionTemplate: TransactionTemplate,
 ) {
 
@@ -42,6 +45,10 @@ class ChatService(
 
     fun findAllChats(): List<Chat> {
         return chatRepository.findAll()
+    }
+
+    fun findChatsByUser(user: User): List<Chat> {
+        return chatRepository.findByUser(user)
     }
 
     fun getChat(chatId: Long): Chat {
@@ -66,6 +73,55 @@ class ChatService(
         val assistant = getChatAssistant(chat)
         assistant.addUrlDocument(documentUrl)
     }
+
+    fun summarizeDocument(chatId: Long, id: Long, summaryWordCount: Int = 100): String {
+        val chat = getChat(chatId)
+
+        val document = documentService.getDocumentById(id) ?: return ""
+
+        val ai = getChatAssistant(chat).aiSimple
+        val segments = document.segments.map { it.text }
+        var summary = ""
+        for (segment in segments) {
+            val message = if (summary == "") {
+                val message = """
+Summarize the following text concisely in about $summaryWordCount words:
+
+$segment
+            """
+
+                println("FIRST SUMMARY MESSAGE")
+                println(message)
+                println()
+
+                message
+            } else {
+                val message = """
+Merge the following summary in triple quotes and the text afterwards concisely into a summary of about $summaryWordCount words:
+
+```
+$summary
+```
+
+$segment
+            """
+
+                println("NEXT SUMMARY MESSAGE")
+                println(message)
+                println()
+
+                message
+            }
+            summary = ai.chat(message)
+        }
+
+        println("FINAL SUMMARY")
+        println(summary)
+        println()
+
+        return summary
+    }
+
 
     data class ChatAndMessage(val chat: Chat, val message: Message)
 
